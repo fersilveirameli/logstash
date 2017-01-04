@@ -1,0 +1,34 @@
+
+version: '2'
+
+services:
+
+    elasticsearch:
+        image: elasticsearch:5.0.0
+        ports:
+            - 9200:9200/tcp
+            - 9300:9300/tcp
+    kibana:
+        #image: kibana:5.0.0
+        build:
+            context: ./kibana-with-plugins
+        links:
+            - elasticsearch
+        ports:
+            - 5601:5601/tcp
+        depends_on:
+            - elasticsearch
+            - logstash
+
+
+    logstash:
+        #image: logstash:5.0.0
+        build:
+            context: ./logstash
+        depends_on:
+            - elasticsearch
+        links:
+            - elasticsearch
+        ports:
+            - "5000:5000/udp"
+        command: -f /opt/logstash/conf.d/logstash.conf
